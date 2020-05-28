@@ -39,11 +39,6 @@ namespace BranchesAndBoundaries
         public int StartMoment { get; set; }
 
         /// <summary>
-        /// Момент закінчення виконання завдання
-        /// </summary>
-        public int EndMoment => StartMoment + Duration;
-
-        /// <summary>
         /// Поточний штраф
         /// </summary>
         public int CurrentFine

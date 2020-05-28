@@ -9,7 +9,7 @@ namespace BranchesAndBoundaries
         {
             var random = new Random();
 
-            int randomTasksCount = random.Next(5, 10);
+            int randomTasksCount = random.Next(5, 8);
 
             List<Task> initialTasks = new List<Task>(randomTasksCount);
             for (int i = 1; i <= randomTasksCount; i++)
@@ -22,14 +22,6 @@ namespace BranchesAndBoundaries
                         initialFineForEarlier: random.Next(3, 20),
                         initialFineForLater: random.Next(3, 20)));
             }
-
-            var divider = new Divider(initialTasks);
-            (Plan bestPlan, float removedPercentage) = divider.GetBestPlan();
-
-            Console.WriteLine();
-            Console.WriteLine(bestPlan.ToString());
-            Console.WriteLine();
-            Console.WriteLine($"Removed percentage: {removedPercentage} %");
 
             //List<Task> initialTasks = new List<Task>
             //{
@@ -58,6 +50,14 @@ namespace BranchesAndBoundaries
             //        initialFineForEarlier: 4,
             //        initialFineForLater: 9)
             //};
+
+            var divider = new Divider(initialTasks);
+            (Plan bestPlan, float removedPercentage) = divider.GetBestPlan();
+
+            Console.WriteLine();
+            Console.WriteLine(bestPlan.ToString());
+            Console.WriteLine();
+            Console.WriteLine($"Removed percentage: {removedPercentage} %");        
         }
     }
 }
