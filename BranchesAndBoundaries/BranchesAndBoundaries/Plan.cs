@@ -3,10 +3,19 @@ using System.Linq;
 
 namespace BranchesAndBoundaries
 {
+    /// <summary>
+    /// План
+    /// </summary>
     public class Plan
     {
+        /// <summary>
+        /// Завдання, які входять до плану
+        /// </summary>
         public LinkedList<Task> Tasks { get; }
 
+        /// <summary>
+        /// Поточний штраф для плану
+        /// </summary>
         public int CurrentFine => Tasks.Sum(t => t.CurrentFine);
 
         public Plan(Task appendedTask, LinkedList<Task> currentPlan = null)
@@ -21,8 +30,6 @@ namespace BranchesAndBoundaries
             int currentDuration = 0;
             while(currentTask.Next != null)
             {
-                currentTask.Value.NextTask = currentTask.Next.Value;
-
                 currentDuration += currentTask.Value.Duration;
                 currentTask.Next.Value.StartMoment = currentDuration;
 
@@ -41,6 +48,12 @@ namespace BranchesAndBoundaries
             }
 
             return new Plan(null, cloneTaskList);
+        }
+
+        public override string ToString()
+        {
+            return $"Fine: {CurrentFine}\n" +
+                $"Tasks: {string.Join(" -> ", Tasks.Select(t => t.Number))}";
         }
     }
 }

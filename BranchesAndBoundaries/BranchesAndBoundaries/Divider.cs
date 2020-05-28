@@ -7,9 +7,7 @@ namespace BranchesAndBoundaries
     {
         private IReadOnlyList<Task> _tasks;
         private List<Plan> _currentPlans;
-        private Plan Record => _currentPlans.FirstOrDefault(
-            plan => plan.Tasks.Count == _tasks.Count && 
-            plan.CurrentFine == _currentPlans.Where(p => p.Tasks.Count == _tasks.Count).Min(p => p.CurrentFine));
+        private Plan _record;
 
         public Divider(List<Task> tasks)
         {
@@ -17,7 +15,7 @@ namespace BranchesAndBoundaries
             _currentPlans = new List<Plan>();
         }
 
-        public Plan GetBestPlan()
+        public (Plan, float) GetBestPlan()
         {
             foreach(Task task in _tasks)
             {
@@ -26,28 +24,39 @@ namespace BranchesAndBoundaries
 
             Plan bestPlan = null;
             List<int> bestPlanTaskNumbers = null;
-            while (_currentPlans.Count != 1 || 
-                Record == null || 
-                !_currentPlans.All(p => p.Tasks.Count == _tasks.Count && p.CurrentFine == Record.CurrentFine))
+            int allPlansCount = _currentPlans.Count;
+            int removedPlansCount = 0;
+            int currentMinFine;
+            List<Plan> recordCandidates;
+            while (!_currentPlans.All(p => p.Tasks.Count == _tasks.Count && p.CurrentFine == _record.CurrentFine))
             {
-                if (Record != null)
+                currentMinFine = _currentPlans.Min(p => p.CurrentFine);
+                recordCandidates = _currentPlans.Where(plan => plan.Tasks.Count == _tasks.Count).ToList();
+                _record = recordCandidates.FirstOrDefault(c => c.CurrentFine == recordCandidates.Min(rc => rc.CurrentFine));
+                if (_record != null)
                 {
-                    _currentPlans.RemoveAll(p => p.CurrentFine > Record.CurrentFine ||
-                        (p.CurrentFine == Record.CurrentFine && p.Tasks.Count < _tasks.Count));
+                    removedPlansCount += _currentPlans.RemoveAll(p => p.CurrentFine > _record.CurrentFine ||
+                        (p.CurrentFine == _record.CurrentFine && p.Tasks.Count < _tasks.Count));
                 }                
 
-                bestPlan = _currentPlans.First(
-                    plan => plan.CurrentFine == _currentPlans.Min(p => p.CurrentFine));
+                bestPlan = _currentPlans.FirstOrDefault(
+                    plan => plan.CurrentFine == currentMinFine && plan.Tasks.Count < _tasks.Count);
+
+                if (bestPlan == null)
+                    continue;
+
                 bestPlanTaskNumbers = bestPlan.Tasks.Select(t => t.Number).ToList();
                 foreach (Task task in _tasks.Where(t => !bestPlanTaskNumbers.Any(n => n == t.Number)))
                 {
                     _currentPlans.Add(new Plan(task.Clone(), bestPlan.Clone().Tasks));
+                    allPlansCount++;
                 }
 
-                _currentPlans.Remove(bestPlan);
+                if(_currentPlans.Count != 1)
+                    _currentPlans.Remove(bestPlan);
             }
 
-            return _currentPlans.First();
+            return (_currentPlans.First(), removedPlansCount * 100 / allPlansCount);
         }
     }
 }
